@@ -15,8 +15,6 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.loadFromModule("SpectralLoop", "Main");
 
-    std::cout << "hello world\n";
-
     return app.exec();
 }
 
