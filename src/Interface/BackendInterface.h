@@ -5,8 +5,9 @@
 //#include<qqml.h>
 #include<QTQmL>
 
-#include"SpectrogramObject.h"
-#include"SpectrogramPlayer.h"
+#include<src/Model/SpectrogramObject.h>
+#include<src/Model/SpectrogramPlayer.h>
+#include<src/Model/SpectrogramConverter.h>
 
 class BackendInterface : public QObject
 {
@@ -16,8 +17,17 @@ class BackendInterface : public QObject
 
 public:
 
+    // Variables
+    SpectrogramObject spectrogramObject;
+    SpectrogramPlayer spectrogramPlayer;
+    SpectrogramConverter spectrogramConverter;
+
     // Singleton constructor
-    BackendInterface(QObject *parent = nullptr) : QObject(parent) {};
+    BackendInterface(QObject *parent = nullptr) : QObject(parent) {
+        spectrogramObject = SpectrogramObject();
+        spectrogramPlayer = SpectrogramPlayer();
+        spectrogramConverter = SpectrogramConverter();
+    };
 
     /*
         Called when user selects a file to import
