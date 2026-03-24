@@ -3,9 +3,14 @@
 
 #pragma once
 
+#include<QtMultimedia/QAudioBuffer>
+
 class SpectrogramObject
 {
 public:
+
+    QAudioBuffer audioStream;
+
     SpectrogramObject();
     ~SpectrogramObject();
 

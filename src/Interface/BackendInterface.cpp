@@ -1,28 +1,30 @@
 #include"src/Interface/BackendInterface.h"
 
+
 bool BackendInterface::UserAudioImport(QString sourceURL) {
-    return true;
+    if (spectrogramConverter.UserAudioImport(sourceURL, spectrogramObject)) {
+        return spectrogramPlayer.SetSpectrogram(spectrogramObject);
+    }
+    return false;
     //return "Received: " + url;
 }
 
-
-
 bool BackendInterface::UserAudioExport(QString destinationURL) {
     // TODO
-    return false;
+    return spectrogramConverter.UserAudioImport(destinationURL, spectrogramObject);
 }
 
 bool BackendInterface::UserPlaybackStart() {
     // TODO
-    return false;
+    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
 }
 
 bool BackendInterface::UserPlaybackPause() {
     // TODO
-    return false;
+    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
 }
 
 bool BackendInterface::UserPlaybackLoop(bool toggleOn) {
     // TODO
-    return false;
+    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
 }
