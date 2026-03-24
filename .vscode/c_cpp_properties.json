@@ -3,7 +3,10 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:/Qt/6.10.2/mingw_64/include/QtCore",
+                "C:/Qt/6.10.2/mingw_64/include",
+                "C:/Qt/6.10.2/mingw_64/include/QtQml"
             ],
             "defines": [
                 "_DEBUG",

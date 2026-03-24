@@ -4,6 +4,8 @@ project(SpectralLoop VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(QT_QML_GENERATE_QMLLS_INI ON)
+
 find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.8)
@@ -17,7 +19,12 @@ qt_add_qml_module(appSpectralLoop
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+    SOURCES
+        src/Interface/BackendInterface.h src/Interface/BackendInterface.cpp
 )
+
+target_include_directories(appSpectralLoop PRIVATE src/Interface)
+target_include_directories(appSpectralLoop PRIVATE src/Model)
 
 set_target_properties(appSpectralLoop PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
