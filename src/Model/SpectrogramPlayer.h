@@ -1,43 +1,36 @@
 #ifndef SPECTROGRAMPLAYER_H
 #define SPECTROGRAMPLAYER_H
-
 #pragma once
 
-#include<QObject>
-#include<QtMultimedia/QMediaPlayer>
-#include<QtMultimedia/QAudioBuffer>
-#include"SpectrogramObject.h"
+#include <QObject>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
-class SpectrogramPlayer
+class SpectrogramPlayer : public QObject
 {
-public:
-    SpectrogramObject spectrogramObject;
+    Q_OBJECT
 
-    SpectrogramPlayer();
+public:
+    explicit SpectrogramPlayer(QObject *parent = nullptr);
     ~SpectrogramPlayer();
 
-    /*
-        
-    */
-    bool SetSpectrogram(SpectrogramObject spectrogram);
+    void    setSource(const QString &url);
+    void    play();
+    void    pause();
+    void    setLooping(bool on);
 
-    /*
-        Called when user hits the play button
-    */
-    bool UserPlaybackStart(SpectrogramObject spectrogram);
+    qint64  position() const;
+    qint64  duration() const;
 
-    /*
-        Called when user hits the pause button
-    */
-    bool UserPlaybackPause(SpectrogramObject spectrogram);
-
-    /*
-        Called when user toggles the loop button
-    */
-    bool UserPlaybackLoop(bool toggleOn, SpectrogramObject spectrogram);
+signals:
+    void positionChanged(qint64 posMs);
+    void durationChanged(qint64 durMs);
+    void playbackStateChanged(QMediaPlayer::PlaybackState state);
 
 private:
-
+    QMediaPlayer *m_player = nullptr;
+    QAudioOutput *m_audio  = nullptr;
+    bool          m_loop   = false;
 };
 
 #endif

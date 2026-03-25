@@ -1,31 +1,43 @@
 #ifndef SPECTROGRAMCONVERTER_H
 #define SPECTROGRAMCONVERTER_H
-
 #pragma once
 
-#include<QObject>
-#include<QtMultimedia/QAudioBuffer>
-#include"SpectrogramObject.h"
+#include <QObject>
+#include <QAudioDecoder>
+#include <QImage>
+#include <complex>
+#include <vector>
+#include "SpectrogramObject.h"
 
-class SpectrogramConverter
+class SpectrogramConverter : public QObject
 {
+    Q_OBJECT
+
 public:
-    SpectrogramConverter();
+    explicit SpectrogramConverter(QObject *parent = nullptr);
     ~SpectrogramConverter();
 
-    /*
-        Called when user selects a file to import
-        Returns sucessful or not
-    */
-    bool UserAudioImport(QString sourceURL, SpectrogramObject spectrogram);
+    void startImport(const QString &sourceURL, SpectrogramObject *target);
 
-    /*
-        Called when user selects a destination folder to export the current audio to
-    */
-    bool UserAudioExport(QString destinationURL, SpectrogramObject spectrogram);
+signals:
+    void spectrogramReady(const QString &imageFilePath);
+    void conversionFailed(const QString &error);
+
+private slots:
+    void onBufferReady();
+    void onFinished();
+    void onError(QAudioDecoder::Error error);
 
 private:
+    QAudioDecoder     *m_decoder = nullptr;
+    SpectrogramObject *m_target  = nullptr;
+    QVector<float>     m_pending;
 
+    void computeAndSave();
+
+    static void fft(std::vector<std::complex<float>> &x);
+    static std::vector<float> hannWindow(const std::vector<float> &seg);
+    static QRgb  magToColor(float normalized);
 };
 
 #endif

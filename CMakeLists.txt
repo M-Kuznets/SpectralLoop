@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-
 project(SpectralLoop VERSION 0.1 LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(QT_QML_GENERATE_QMLLS_INI ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
-find_package(Qt6 6.8 REQUIRED COMPONENTS Multimedia)
-
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick Multimedia)
 qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appSpectralLoop
@@ -21,14 +18,21 @@ qt_add_qml_module(appSpectralLoop
     QML_FILES
         qml/Main.qml
     SOURCES
-        src/Interface/BackendInterface.h src/Interface/BackendInterface.cpp
-        src/Model/SpectrogramConverter.h src/Model/SpectrogramConverter.cpp
-        src/Model/SpectrogramObject.h src/Model/SpectrogramObject.cpp
-        src/Model/SpectrogramPlayer.h src/Model/SpectrogramPlayer.cpp
+        src/Interface/BackendInterface.h
+        src/Interface/BackendInterface.cpp
+        src/Model/SpectrogramObject.h
+        src/Model/SpectrogramObject.cpp
+        src/Model/SpectrogramConverter.h
+        src/Model/SpectrogramConverter.cpp
+        src/Model/SpectrogramPlayer.h
+        src/Model/SpectrogramPlayer.cpp
 )
 
-target_include_directories(appSpectralLoop PRIVATE src/Interface)
-target_include_directories(appSpectralLoop PRIVATE src/Model)
+target_include_directories(appSpectralLoop PRIVATE
+    src
+    src/Interface
+    src/Model
+)
 
 set_target_properties(appSpectralLoop PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
@@ -38,8 +42,7 @@ set_target_properties(appSpectralLoop PROPERTIES
 )
 
 target_link_libraries(appSpectralLoop
-    PRIVATE Qt6::Quick
-    PRIVATE Qt6::Multimedia
+    PRIVATE Qt6::Quick Qt6::Multimedia
 )
 
 include(GNUInstallDirs)
