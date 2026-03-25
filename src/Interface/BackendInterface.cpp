@@ -1,30 +1,80 @@
-#include"src/Interface/BackendInterface.h"
+#include "BackendInterface.h"
+#include <QMediaPlayer>
 
+BackendInterface::BackendInterface(QObject *parent) : QObject(parent)
+{
+    m_converter = new SpectrogramConverter(this);
+    m_player    = new SpectrogramPlayer(this);
 
-bool BackendInterface::UserAudioImport(QString sourceURL) {
-    if (spectrogramConverter.UserAudioImport(sourceURL, spectrogramObject)) {
-        return spectrogramPlayer.SetSpectrogram(spectrogramObject);
-    }
-    return false;
-    //return "Received: " + url;
+    connect(m_converter, &SpectrogramConverter::spectrogramReady,
+            this,        &BackendInterface::onSpectrogramReady);
+
+    connect(m_converter, &SpectrogramConverter::conversionFailed,
+            this,        &BackendInterface::onConversionFailed);
+
+    connect(m_player, &SpectrogramPlayer::positionChanged,
+            this,     &BackendInterface::onPositionChanged);
+
+    connect(m_player, &SpectrogramPlayer::playbackStateChanged,
+            this,     &BackendInterface::onPlayStateChanged);
 }
 
-bool BackendInterface::UserAudioExport(QString destinationURL) {
-    // TODO
-    return spectrogramConverter.UserAudioImport(destinationURL, spectrogramObject);
+void BackendInterface::UserAudioImport(const QString &sourceURL)
+{
+    m_spectrogramObject = SpectrogramObject();
+    m_spectrogramObject.sourceURL = sourceURL;
+    m_loading = true;
+    emit loadingChanged();
+
+    m_player->setSource(sourceURL);
+    m_converter->startImport(sourceURL, &m_spectrogramObject);
 }
 
-bool BackendInterface::UserPlaybackStart() {
-    // TODO
-    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
+void BackendInterface::UserPlaybackStart()
+{
+    if (m_spectrogramObject.isLoaded)
+        m_player->play();
 }
 
-bool BackendInterface::UserPlaybackPause() {
-    // TODO
-    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
+void BackendInterface::UserPlaybackPause()
+{
+    m_player->pause();
 }
 
-bool BackendInterface::UserPlaybackLoop(bool toggleOn) {
-    // TODO
-    return spectrogramPlayer.UserPlaybackStart(spectrogramObject);
+void BackendInterface::UserPlaybackLoop(bool toggleOn)
+{
+    m_player->setLooping(toggleOn);
+}
+
+double BackendInterface::playbackProgress() const
+{
+    qint64 dur = m_player->duration();
+    if (dur <= 0) return 0.0;
+    return static_cast<double>(m_player->position()) / static_cast<double>(dur);
+}
+
+void BackendInterface::onSpectrogramReady(const QString &imagePath)
+{
+    m_imagePath = imagePath;
+    m_loading   = false;
+    emit loadingChanged();
+    emit spectrogramReady();
+}
+
+void BackendInterface::onConversionFailed(const QString &error)
+{
+    m_loading = false;
+    emit loadingChanged();
+    emit importFailed(error);
+}
+
+void BackendInterface::onPositionChanged(qint64)
+{
+    emit positionChanged();
+}
+
+void BackendInterface::onPlayStateChanged(QMediaPlayer::PlaybackState state)
+{
+    m_isPlaying = (state == QMediaPlayer::PlayingState);
+    emit playStateChanged();
 }

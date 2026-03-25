@@ -1,21 +1,21 @@
 #ifndef SPECTROGRAMOBJECT_H
 #define SPECTROGRAMOBJECT_H
-
 #pragma once
 
-#include<QtMultimedia/QAudioBuffer>
+#include <QVector>
+#include <QString>
 
 class SpectrogramObject
 {
 public:
-
-    QAudioBuffer audioStream;
-
     SpectrogramObject();
     ~SpectrogramObject();
 
-private:
-
+    QVector<float> samples;   // Mono float PCM
+    int sampleRate   = 44100;
+    int channelCount = 1;
+    QString sourceURL;
+    bool isLoaded = false;
 };
 
 #endif
