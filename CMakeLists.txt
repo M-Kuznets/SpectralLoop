@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick Multimedia)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick Multimedia Concurrent)
 qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appSpectralLoop
@@ -42,7 +42,7 @@ set_target_properties(appSpectralLoop PROPERTIES
 )
 
 target_link_libraries(appSpectralLoop
-    PRIVATE Qt6::Quick Qt6::Multimedia
+    PRIVATE Qt6::Quick Qt6::Multimedia Qt6::Concurrent
 )
 
 include(GNUInstallDirs)
