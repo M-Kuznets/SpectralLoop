@@ -108,7 +108,7 @@ void BackendInterface::startAudioRebuild(bool local, int glIterations)
         QString audioPath = watcher->result();
         watcher->deleteLater();
         if (!audioPath.isEmpty()) {
-            m_lastWavPath = audioPath;          // ← remember for export
+            m_lastWavPath = audioPath;
             m_player->reloadAt("file://" + audioPath, savedPos, wasPlaying);
         }
         m_rebuilding = false;
@@ -128,10 +128,10 @@ void BackendInterface::exportAudio(const QString &destPath)
         return;
     }
 
-    // QML FileDialog gives us a file:// URL on some platforms — strip it.
+    // QML FileDialog gives us a file:// 
     QString dest = destPath;
-    if (dest.startsWith("file:///")) dest = dest.mid(7);          // Windows: file:///C:/…
-    else if (dest.startsWith("file://")) dest = dest.mid(7);      // Unix:    file:///home/…
+    if (dest.startsWith("file:///")) dest = dest.mid(7);          // Windows
+    else if (dest.startsWith("file://")) dest = dest.mid(7);      // Unix
     // Ensure .wav extension
     if (!dest.endsWith(".wav", Qt::CaseInsensitive)) dest += ".wav";
 

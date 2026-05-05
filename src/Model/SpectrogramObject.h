@@ -27,8 +27,8 @@ public:
     int numFrames = 0;
     int numBins   = 0;
 
-    // Full reconstructed PCM — rebuilt once on load, then only the dirty
-    // slice is replaced on each paint stroke (much faster than full rebuild)
+    // Full reconstructed PCM rebuilt once on load, then only the dirty
+    // slice is replaced on each paint stroke
     std::vector<float> cachedAudio;
 
     // Dirty region set by paint ops, consumed by commitPaint()
