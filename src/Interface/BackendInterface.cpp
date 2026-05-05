@@ -1,5 +1,7 @@
 #include "BackendInterface.h"
 #include <QtConcurrent/QtConcurrent>
+#include <QFile>
+#include <QFileInfo>
 
 BackendInterface::BackendInterface(QObject *parent) : QObject(parent)
 {
@@ -105,8 +107,10 @@ void BackendInterface::startAudioRebuild(bool local, int glIterations)
             [this, watcher, savedPos, wasPlaying]() {
         QString audioPath = watcher->result();
         watcher->deleteLater();
-        if (!audioPath.isEmpty())
+        if (!audioPath.isEmpty()) {
+            m_lastWavPath = audioPath;          // ← remember for export
             m_player->reloadAt("file://" + audioPath, savedPos, wasPlaying);
+        }
         m_rebuilding = false;
         emit rebuildingChanged();
     });
@@ -115,6 +119,30 @@ void BackendInterface::startAudioRebuild(bool local, int glIterations)
         return local ? conv->reconstructLocal(glIterations)
                      : conv->reconstructFull(glIterations);
     }));
+}
+
+void BackendInterface::exportAudio(const QString &destPath)
+{
+    if (m_lastWavPath.isEmpty()) {
+        emit exportFailed("No audio has been generated yet.");
+        return;
+    }
+
+    // QML FileDialog gives us a file:// URL on some platforms — strip it.
+    QString dest = destPath;
+    if (dest.startsWith("file:///")) dest = dest.mid(7);          // Windows: file:///C:/…
+    else if (dest.startsWith("file://")) dest = dest.mid(7);      // Unix:    file:///home/…
+    // Ensure .wav extension
+    if (!dest.endsWith(".wav", Qt::CaseInsensitive)) dest += ".wav";
+
+    // Remove stale file so QFile::copy doesn't fail silently
+    if (QFile::exists(dest))
+        QFile::remove(dest);
+
+    if (QFile::copy(m_lastWavPath, dest))
+        emit exportSucceeded(dest);
+    else
+        emit exportFailed("Could not write to: " + dest);
 }
 
 // Private slots

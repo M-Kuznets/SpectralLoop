@@ -51,9 +51,15 @@ public:
     Q_INVOKABLE void applySpectralRepair();
     Q_INVOKABLE void applySpectralAttenuation(double x1, double y1, double x2, double y2);
 
+    // Copies the last reconstructed WAV to destPath chosen by the user.
+    // destPath should come from a QML FileDialog (SaveFile mode).
+    Q_INVOKABLE void exportAudio(const QString &destPath);
+
 signals:
     void spectrogramReady();
     void importFailed(const QString &error);
+    void exportSucceeded(const QString &path);
+    void exportFailed(const QString &error);
     void loadingChanged();
     void rebuildingChanged();
     void positionChanged();
@@ -76,6 +82,7 @@ private:
     SpectrogramPlayer    *m_player     = nullptr;
 
     QString m_imagePath;
+    QString m_lastWavPath;          // path of the most recently written temp WAV
     QString m_currentTool = "none";
     bool    m_loading     = false;
     bool    m_rebuilding  = false;
