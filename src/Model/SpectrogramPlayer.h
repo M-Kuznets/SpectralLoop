@@ -16,7 +16,7 @@ public:
 
     void setSource(const QString &url);
 
-    // Reload a new source (reconstructed WAV) at a given position in ms,
+    // Reload a new source at a given position in ms,
     // optionally resuming playback. Called after every edit.
     void reloadAt(const QString &url, qint64 posMs, bool shouldPlay);
 

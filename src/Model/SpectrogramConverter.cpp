@@ -25,7 +25,7 @@ static int s_audioCounter = 0;
 SpectrogramConverter::SpectrogramConverter(QObject *parent) : QObject(parent) {}
 SpectrogramConverter::~SpectrogramConverter() {}
 
-// ─── Import ───────────────────────────────────────────────────────────────────
+// Import
 void SpectrogramConverter::startImport(const QString &sourceURL, SpectrogramObject *target)
 {
     m_target = target;
@@ -74,7 +74,7 @@ void SpectrogramConverter::onError(QAudioDecoder::Error)
     emit conversionFailed(m_decoder->errorString());
 }
 
-// ─── FFT / IFFT ───────────────────────────────────────────────────────────────
+// FFT / IFFT
 void SpectrogramConverter::fft(std::vector<std::complex<float>> &x)
 {
     const size_t N = x.size();
@@ -125,7 +125,7 @@ QRgb SpectrogramConverter::magToColor(float n)
     return qRgb(int(r*255), int(g*255), int(b*255));
 }
 
-// ─── STFT ─────────────────────────────────────────────────────────────────────
+// STFT 
 void SpectrogramConverter::computeSTFT()
 {
     const int N = m_pending.size();
@@ -157,7 +157,7 @@ void SpectrogramConverter::computeSTFT()
     m_target->stftMagOriginal = m_target->stftMag;
 }
 
-// ─── Parallel ISTFT ───────────────────────────────────────────────────────────
+// Parallel ISTFT 
 // IFFTs are independent per frame — split across hardware threads,
 // then do overlap-add sequentially.
 std::vector<float> SpectrogramConverter::istftParallel(
@@ -211,7 +211,7 @@ std::vector<float> SpectrogramConverter::istftParallel(
     return out;
 }
 
-// ─── Parallel re-STFT ─────────────────────────────────────────────────────────
+// Parallel re-STFT 
 void SpectrogramConverter::restftParallel(const std::vector<float> &signal,
                                           std::vector<std::vector<float>> &phaseOut,
                                           int frameStart, int frameEnd) const
@@ -245,7 +245,7 @@ void SpectrogramConverter::restftParallel(const std::vector<float> &signal,
     for (auto &f : futures) f.get();
 }
 
-// ─── Save WAV from cachedAudio ────────────────────────────────────────────────
+// Save WAV from cachedAudio
 QString SpectrogramConverter::saveWavFromCache()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
@@ -253,7 +253,7 @@ QString SpectrogramConverter::saveWavFromCache()
     return writeWav(path, m_target->cachedAudio, m_target->sampleRate) ? path : QString{};
 }
 
-// ─── Local rebuild — paint strokes (fast) ────────────────────────────────────
+// Local rebuild paint strokes
 // 0 GL iterations: single parallel ISTFT pass using propagated phases.
 // Splices result into cachedAudio with cosine crossfade at edges.
 QString SpectrogramConverter::reconstructLocal(int /*glIterations*/)
@@ -288,7 +288,7 @@ QString SpectrogramConverter::reconstructLocal(int /*glIterations*/)
     return saveWavFromCache();
 }
 
-// ─── Full rebuild — features & first load ─────────────────────────────────────
+// Full rebuild
 QString SpectrogramConverter::reconstructFull(int glIterations)
 {
     if (!m_target || !m_target->isLoaded) return {};
@@ -307,7 +307,7 @@ QString SpectrogramConverter::reconstructFull(int glIterations)
     return saveWavFromCache();
 }
 
-// ─── WAV writer ───────────────────────────────────────────────────────────────
+// WAV writer
 bool SpectrogramConverter::writeWav(const QString &path,
                                     const std::vector<float> &samples,
                                     int sampleRate)
@@ -330,7 +330,7 @@ bool SpectrogramConverter::writeWav(const QString &path,
     return true;
 }
 
-// ─── Image ────────────────────────────────────────────────────────────────────
+// Image
 void SpectrogramConverter::saveImage()
 {
     if (!m_target || m_target->stftMag.empty()) {
@@ -364,7 +364,7 @@ void SpectrogramConverter::regenerateImage()
     saveImage();
 }
 
-// ─── Coordinate helper ────────────────────────────────────────────────────────
+// Coordinate helper
 std::pair<int,int> SpectrogramConverter::normToIndices(float normX, float normY) const
 {
     int frame = std::clamp(int(normX * m_target->numFrames), 0, m_target->numFrames-1);
@@ -372,7 +372,7 @@ std::pair<int,int> SpectrogramConverter::normToIndices(float normX, float normY)
     return {frame, bin};
 }
 
-// ─── Pitch snapping ───────────────────────────────────────────────────────────
+// Pitch snapping
 int SpectrogramConverter::snapToPitch(int bin) const
 {
     if (bin <= 0) return bin;
@@ -384,7 +384,7 @@ int SpectrogramConverter::snapToPitch(int bin) const
     return std::clamp(snappedBin, 0, m_target->numBins-1);
 }
 
-// ─── Phase propagation ────────────────────────────────────────────────────────
+// Phase propagation
 void SpectrogramConverter::propagatePhaseCoherence(int frame, int bin)
 {
     if (!m_target || bin < 0 || bin >= m_target->numBins) return;
@@ -396,7 +396,7 @@ void SpectrogramConverter::propagatePhaseCoherence(int frame, int bin)
         m_target->stftPhase[f][bin] = m_target->stftPhase[f-1][bin] + advance;
 }
 
-// ─── Psychoacoustic masking ───────────────────────────────────────────────────
+// Psychoacoustic masking
 void SpectrogramConverter::applyPsychoacousticMasking(int frame, int bin, float boostAmount)
 {
     if (!m_target || bin <= 0 || frame < 0) return;
@@ -417,7 +417,7 @@ void SpectrogramConverter::applyPsychoacousticMasking(int frame, int bin, float 
     }
 }
 
-// ─── Magnitude tapering ───────────────────────────────────────────────────────
+// Magnitude tapering
 void SpectrogramConverter::applyMagnitudeTaper()
 {
     if (!m_target || m_target->stftMag.empty()) return;
@@ -451,7 +451,7 @@ void SpectrogramConverter::applyMagnitudeTaper()
     }
 }
 
-// ─── Paint ────────────────────────────────────────────────────────────────────
+// Paint
 void SpectrogramConverter::paintLine(float normX, float normY)
 {
     if (!m_target || !m_target->isLoaded) return;
@@ -511,7 +511,7 @@ void SpectrogramConverter::erase(float normX, float normY)
         }
 }
 
-// ─── Features ─────────────────────────────────────────────────────────────────
+// Features
 void SpectrogramConverter::applyHarmonicEnhancer()
 {
     if (!m_target || !m_target->isLoaded) return;

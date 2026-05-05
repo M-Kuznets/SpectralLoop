@@ -25,16 +25,16 @@ public:
     void paintSpray(float normX, float normY, bool heavy);
     void erase(float normX, float normY);
 
-    // ── 3. Magnitude tapering ───────────────────────────────────────────────
+    // Magnitude tapering 
     // Call before regenerateImage() after any paint stroke.
     // Smooths the paint delta over time so there are no hard onset/offset clicks.
     void applyMagnitudeTaper();
 
     void regenerateImage();
 
-    // ── 1. Griffin-Lim reconstruction ───────────────────────────────────────
-    // Local: rebuilds only the dirty region and splices into cachedAudio (~fast)
-    // Full:  rebuilds entire file — use for features that affect the whole file
+    // Griffin-Lim reconstruction
+    // Local: rebuilds only the dirty region and splices into cachedAudio 
+    // Full:  rebuilds entire file use for features that affect the whole file
     QString reconstructLocal(int glIterations = 8);
     QString reconstructFull (int glIterations = 20);
 
@@ -62,13 +62,13 @@ private:
 
     std::pair<int,int> normToIndices(float normX, float normY) const;
 
-    // ── 4. Pitch snapping ───────────────────────────────────────────────────
+    // Pitch snapping
     int snapToPitch(int bin) const;
 
-    // ── 2. Phase propagation ────────────────────────────────────────────────
+    // Phase propagation 
     void propagatePhaseCoherence(int frame, int bin);
 
-    // ── 5. Psychoacoustic masking ───────────────────────────────────────────
+    // Psychoacoustic masking 
     void applyPsychoacousticMasking(int frame, int bin, float boostAmount);
 
     // DSP primitives

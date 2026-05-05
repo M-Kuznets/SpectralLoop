@@ -26,7 +26,7 @@ void SpectrogramPlayer::setSource(const QString &url)
     m_player->setSource(QUrl(url));
 }
 
-// Reload a new source (edited WAV), seek to posMs, optionally resume playback.
+// Reload a new source 
 void SpectrogramPlayer::reloadAt(const QString &url, qint64 posMs, bool shouldPlay)
 {
     m_pendingPos  = posMs;

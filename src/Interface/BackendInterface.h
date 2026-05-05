@@ -51,9 +51,15 @@ public:
     Q_INVOKABLE void applySpectralRepair();
     Q_INVOKABLE void applySpectralAttenuation(double x1, double y1, double x2, double y2);
 
+    // Copies the last reconstructed WAV to destPath chosen by the user
+    // destPath should come from a QML FileDialog
+    Q_INVOKABLE void exportAudio(const QString &destPath);
+
 signals:
     void spectrogramReady();
     void importFailed(const QString &error);
+    void exportSucceeded(const QString &path);
+    void exportFailed(const QString &error);
     void loadingChanged();
     void rebuildingChanged();
     void positionChanged();
@@ -67,8 +73,8 @@ private slots:
     void onPlayStateChanged(QMediaPlayer::PlaybackState state);
 
 private:
-    // local=true: only rebuilds the dirty frame region (fast, for paint strokes)
-    // local=false: rebuilds the entire file (slower, for whole-file features)
+    // local=true: only rebuilds the dirty frame region 
+    // local=false: rebuilds the entire file 
     void startAudioRebuild(bool local, int glIterations);
 
     SpectrogramObject     m_spectrogramObject;
@@ -76,6 +82,7 @@ private:
     SpectrogramPlayer    *m_player     = nullptr;
 
     QString m_imagePath;
+    QString m_lastWavPath;     
     QString m_currentTool = "none";
     bool    m_loading     = false;
     bool    m_rebuilding  = false;

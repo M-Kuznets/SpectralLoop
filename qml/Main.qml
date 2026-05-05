@@ -32,6 +32,15 @@ Window {
         }
     }
 
+    FileDialog {
+        id: exportDialog
+        title:       "Export Edited WAV"
+        fileMode:    FileDialog.SaveFile
+        nameFilters: ["WAV files (*.wav)"]
+        defaultSuffix: "wav"
+        onAccepted:  Backend.exportAudio(selectedFile.toString())
+    }
+
     Rectangle {
         id: toolbar
         anchors { top: parent.top; left: parent.left; right: parent.right }
@@ -59,6 +68,13 @@ Window {
                 label:   "Open WAV"
                 enabled: !Backend.isLoading
                 onActivated: fileDialog.open()
+            }
+
+            // Export WAV
+            TBtn {
+                label:   "Export WAV"
+                enabled: Backend.isLoaded && !Backend.isRebuilding && !Backend.isLoading
+                onActivated: exportDialog.open()
             }
 
             ToolSep {}
@@ -386,8 +402,9 @@ Window {
         id: toast
         anchors { bottom: controls.top; horizontalCenter: parent.horizontalCenter; bottomMargin: 10 }
         width: toastText.implicitWidth + 32; height: 34; radius: 8
-        color: "#3d1a1a"; border.color: "#7a2020"; visible: false; opacity: 0
-        Text { id: toastText; anchors.centerIn: parent; color: "#ff8080"; font.pixelSize: 13 }
+        color: "#0d2a1a"; border.color: "#207a40"; visible: false; opacity: 0
+        property bool isError: true
+        Text { id: toastText; anchors.centerIn: parent; color: "#80ff80"; font.pixelSize: 13 }
         SequentialAnimation {
             id: toastAnim
             NumberAnimation { target: toast; property: "opacity"; to: 1; duration: 200 }
@@ -397,13 +414,22 @@ Window {
         }
     }
 
+    function showToast(msg, isErr) {
+        toastAnim.stop()
+        toast.isError      = isErr
+        toast.color        = isErr ? "#3d1a1a" : "#0d2a1a"
+        toast.border.color = isErr ? "#7a2020" : "#207a40"
+        toastText.color    = isErr ? "#ff8080" : "#80ff80"
+        toastText.text     = msg
+        toast.visible      = true
+        toastAnim.restart()
+    }
+
     Connections {
         target: Backend
-        function onImportFailed(error) {
-            toastText.text = "Import failed: " + error
-            toast.visible  = true
-            toastAnim.restart()
-        }
+        function onImportFailed(error)        { root.showToast("Import failed: " + error, true) }
+        function onExportSucceeded(path)      { root.showToast("Saved to: " + path, false) }
+        function onExportFailed(error)        { root.showToast("Export failed: " + error, true) }
     }
 
     // Vertical separator in toolbar
